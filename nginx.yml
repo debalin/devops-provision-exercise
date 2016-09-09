@@ -1,0 +1,13 @@
+- hosts: node0
+  become: yes
+  remote_user: ubuntu
+  tasks:
+    - name: NGINX | Installing NGINX
+      apt:
+        pkg: nginx
+        state: installed
+        update-cache: true
+    - name: NGINX | Start NGINX
+      service: 
+        name: nginx
+        state: started 

@@ -6,6 +6,7 @@
 			"aws-sdk" : "latest",
 			"inquirer" : "latest",
 			"figlet": "latest",
-			"chalk": "latest"
+			"chalk": "latest",
+			"node-ansible": "latest"
 		}
 	}
