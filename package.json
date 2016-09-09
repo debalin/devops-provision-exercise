@@ -1,0 +1,11 @@
+	{
+		"name" : "devops-prov-server",
+		"version" : "0.0.1",
+		"main" : "prov",
+		"dependencies" : {
+			"aws-sdk" : "latest",
+			"inquirer" : "latest",
+			"figlet": "latest",
+			"chalk": "latest"
+		}
+	}
