@@ -25,10 +25,10 @@ inquirer.prompt(providerQuestion).then(function(answers) {
       var functionQuestion = [{
         name: 'function',
         type: 'list',
-        message: 'Which function do you choose?',
+        message: 'Which function do you want to choose?',
         choices: [{ name: 'Create Instance', value: 'create' },
-          { name: 'Get Instance List', value: 'list' },
-          { name: 'Create ngnix server', value: 'create_ngnix' }
+          { name: 'Get Instance List & State', value: 'list' },
+          { name: 'Create NGINX Server', value: 'create_ngnix' }
         ]
       }];
       inquirer.prompt(functionQuestion).then(function(answers) {
@@ -85,7 +85,7 @@ inquirer.prompt(providerQuestion).then(function(answers) {
                 var runningQuestion = [{
                   name: 'running',
                   type: 'list',
-                  message: 'Which instance do you want to choose?',
+                  message: 'Which running instance do you want to choose?',
                   choices: runningInstances
                 }];
                 inquirer.prompt(runningQuestion).then(function(answers) {
@@ -95,6 +95,7 @@ inquirer.prompt(providerQuestion).then(function(answers) {
                   var promise = playbook.exec();
                   promise.then(function(success) {
                     console.log(success.output);
+                    console.log("Check the web server at " + answers.running + ".");
                   }, function(error) {
                     console.error(error);
                   })
