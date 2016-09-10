@@ -5,6 +5,8 @@ var chalk = require('chalk');
 var fs = require('fs');
 const path = require('path');
 var Ansible = require('node-ansible');
+var child_process = require('child_process');
+var parseJson = require('parse-json');
 
 AWS.config.update({ region: 'us-west-2' });
 
@@ -28,7 +30,7 @@ inquirer.prompt(providerQuestion).then(function(answers) {
         message: 'Which function do you want to choose?',
         choices: [{ name: 'Create Instance', value: 'create' },
           { name: 'Get Instance List & State', value: 'list' },
-          { name: 'Create NGINX Server', value: 'create_ngnix' }
+          { name: 'Create & Start NGINX Server', value: 'create_ngnix' }
         ]
       }];
       inquirer.prompt(functionQuestion).then(function(answers) {
@@ -108,6 +110,33 @@ inquirer.prompt(providerQuestion).then(function(answers) {
       break;
 
     case 'Azure':
+    	var functionQuestion = [{
+        name: 'function',
+        type: 'list',
+        message: 'Which function do you want to choose?',
+        choices: [{ name: 'Create VM', value: 'create' },
+          { name: 'Get VM Details', value: 'list' },
+          { name: 'Create & Start NGINX Server', value: 'create_ngnix' }
+        ]
+      }];
+      inquirer.prompt(functionQuestion).then(function(answers) {
+        var ec2 = new AWS.EC2();
+        switch (answers.function) {
+          case 'create':
+
+            break;
+
+          case 'list':
+            child_process.exec('azure vm list', function(error, result, stderr){
+							console.log(result);
+						});
+						break;
+
+          case 'create_ngnix':
+            
+            break;
+        }
+      });
       break;
   }
 });
