@@ -8,6 +8,9 @@ var Ansible = require('node-ansible');
 var child_process = require('child_process');
 var parseJson = require('parse-json');
 
+var utils = require(path.resolve(__dirname, './utils'));
+var constants = require(path.resolve(__dirname, './constants'));
+
 AWS.config.update({ region: 'us-west-2' });
 
 console.log(chalk.yellow(
@@ -91,7 +94,7 @@ inquirer.prompt(providerQuestion).then(function(answers) {
                   choices: runningInstances
                 }];
                 inquirer.prompt(runningQuestion).then(function(answers) {
-                  var inventory = "node0 ansible_ssh_host=" + answers.running + " ansible_ssh_user=ubuntu ansible_ssh_private_key_file=" + getUserHome() + path.sep + ".aws" + path.sep + "key_pls.pem";
+                  var inventory = "node0 ansible_ssh_host=" + answers.running + " ansible_ssh_user=ubuntu ansible_ssh_private_key_file=" + utils.getUserHome() + path.sep + ".aws" + path.sep + "key_pls.pem";
                   fs.writeFileSync('inventory', inventory);
                   var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
                   var promise = playbook.exec();
@@ -110,7 +113,8 @@ inquirer.prompt(providerQuestion).then(function(answers) {
       break;
 
     case 'Azure':
-    	var functionQuestion = [{
+      console.log('You have to run "azure login" first, or the commands will not work.');
+      var functionQuestion = [{
         name: 'function',
         type: 'list',
         message: 'Which function do you want to choose?',
@@ -120,27 +124,54 @@ inquirer.prompt(providerQuestion).then(function(answers) {
         ]
       }];
       inquirer.prompt(functionQuestion).then(function(answers) {
-        var ec2 = new AWS.EC2();
         switch (answers.function) {
           case 'create':
-
+            var createQuestion = [{
+              name: 'username',
+              type: 'input',
+              message: 'Type in a user name for the VM: '
+            }, {
+              name: 'password',
+              type: 'password',
+              message: 'Provide a password for the VM: '
+            }, {
+              name: 'resource_group',
+              type: 'input',
+              message: 'Resource group under which you want the VM: '
+            }];
+            inquirer.prompt(createQuestion).then(function(answers) {
+              var resourceGroup = answers.resource_group;
+              var username = answers.username;
+              var password = answers.password;
+              var filePath = utils.getUserHome() + path.sep + "azure_key";
+              var azure_key = username + "\n" + password;
+              fs.writeFileSync(filePath, azure_key);
+              console.log("Username and password stored in " + filePath + ".");
+              console.log("Following parameters will be used for the creation of the VM...");
+              console.log("Resource Group: " + resourceGroup);
+              console.log("VM Name: " + constants.azureVMName);
+              console.log("Location: " + constants.azureLocation);
+              console.log("OS Type: " + constants.azureOSType);
+              console.log("Image URN: " + constants.azureImageURN);
+              var createCommand = "azure vm quick-create " + resourceGroup + " " + constants.azureVMName + " " + constants.azureLocation + " " + constants.azureOSType + " " + constants.azureImageURN + " " + username + " " + password;
+            	console.log('Creating VM...');
+              child_process.exec(createCommand, function(error, result, stderr) {
+                console.log(result);
+              });
+            });
             break;
 
           case 'list':
-            child_process.exec('azure vm list', function(error, result, stderr){
-							console.log(result);
-						});
-						break;
+            child_process.exec('azure vm list', function(error, result, stderr) {
+              console.log(result);
+            });
+            break;
 
           case 'create_ngnix':
-            
+
             break;
         }
       });
       break;
   }
 });
-
-function getUserHome() {
-  return process.env[(process.platform == 'win32') ? 'USERPROFILE' : 'HOME'];
-}
