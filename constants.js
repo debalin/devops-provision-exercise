@@ -6,5 +6,7 @@ module.exports = {
   azureLocation: "southcentralus",
   azureOSType: "Linux",
   azureImageURN: "canonical:UbuntuServer:16.04.0-LTS:16.04.201604203",
-  azureKeyPath: utils.getUserHome() + path.sep + "azure_key"
+  azureKeyPath: utils.getUserHome() + path.sep + "azure_key",
+  awsImageID: 'ami-d732f0b7',
+  awsInstanceType: 't2.micro'
 }

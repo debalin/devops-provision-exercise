@@ -27,6 +27,7 @@ var providerQuestion = [{
 inquirer.prompt(providerQuestion).then(function(answers) {
   switch (answers.provider) {
     case 'AWS':
+      console.log('\nNote: I hope you kept your credentials in the ~/.aws/credentials file.');
       var functionQuestion = [{
         name: 'function',
         type: 'list',
@@ -40,24 +41,47 @@ inquirer.prompt(providerQuestion).then(function(answers) {
         var ec2 = new AWS.EC2();
         switch (answers.function) {
           case 'create':
-            var params = {
-              ImageId: 'ami-d732f0b7',
-              MaxCount: 1,
-              MinCount: 1,
-              InstanceType: 't2.micro',
-              KeyName: 'key_pls',
-              SecurityGroupIds: ['sg-23593b44']
-            };
-
-            ec2.runInstances(params, function(err, data) {
-              if (err)
-                console.log(err, err.stack);
-              else
-                console.log('New Instance created with InstanceId ' + data.Instances[0].InstanceId);
+            var createQuestion = [{
+              name: 'securityGroup',
+              type: 'input',
+              message: 'Give the name of a security group (leave blank if you want to create a new one): '
+            }, {
+              name: 'keyName',
+              type: 'input',
+              message: 'Provide a key pair name: '
+            }];
+            inquirer.prompt(createQuestion).then(function(answers) {
+              console.log("Following parameters will be used for the creation of the VM...");
+              console.log('Image ID: ' + constants.awsImageID)
+              console.log('Instance Type: ' + constants.awsInstanceType)
+              console.log('Key Pair: ' + answers.keyName);
+              var securityGroup = "";
+              if (!answers.securityGroup || answers.securityGroup != "") {
+                console.log('Security Group: ' + answers.securityGroup);
+                securityGroup = answers.securityGroup;
+              } else {
+                console.log('A new Security Group will be created.');
+              }
+              var params = {
+                ImageId: constants.awsImageID,
+                MaxCount: 1,
+                MinCount: 1,
+                InstanceType: constants.awsInstanceType,
+                KeyName: answers.keyName
+              };
+              if (securityGroup != "")
+                params.SecurityGroupIds = [securityGroup];
+              ec2.runInstances(params, function(err, data) {
+                if (err)
+                  console.log(err, err.stack);
+                else
+                  console.log('New Instance created with InstanceId ' + data.Instances[0].InstanceId);
+              });
             });
             break;
 
           case 'list':
+            console.log('List of instances in your account...');
             ec2.describeInstances(function(err, data) {
               if (err)
                 console.log(err, err.stack);
@@ -94,16 +118,25 @@ inquirer.prompt(providerQuestion).then(function(answers) {
                   choices: runningInstances
                 }];
                 inquirer.prompt(runningQuestion).then(function(answers) {
-                  var inventory = "node0 ansible_ssh_host=" + answers.running + " ansible_ssh_user=ubuntu ansible_ssh_private_key_file=" + utils.getUserHome() + path.sep + ".aws" + path.sep + "key_pls.pem";
-                  fs.writeFileSync('inventory', inventory);
-                  var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
-                  var promise = playbook.exec();
-                  promise.then(function(success) {
-                    console.log(success.output);
-                    console.log("Check the web server at " + answers.running + ".");
-                  }, function(error) {
-                    console.error(error);
-                  })
+                	var running = answers.running;
+                  var keyQuestion = [{
+                    name: 'keyName',
+                    type: 'input',
+                    message: 'What is the key name (should be present in ~/.aws/ folder)?'
+                  }];
+                  inquirer.prompt(keyQuestion).then(function(answers) {
+                    var inventory = "node0 ansible_ssh_host=" + running + " ansible_ssh_user=ubuntu ansible_ssh_private_key_file=" + utils.getUserHome() + path.sep + ".aws" + path.sep + answers.keyName;
+                    fs.writeFileSync('inventory', inventory);
+                    var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
+                    var promise = playbook.exec();
+                    console.log('Running Ansible Playbook...');
+                    promise.then(function(success) {
+                      console.log(success.output);
+                      console.log("Check the web server at " + running + ".");
+                    }, function(error) {
+                      console.error(error);
+                    });
+                  });
                 });
               }
             });
@@ -113,13 +146,13 @@ inquirer.prompt(providerQuestion).then(function(answers) {
       break;
 
     case 'Azure':
-      console.log('Note: You have to interactively run "azure login" first, or the commands will not work.');
+      console.log('\nNote: You have to interactively run "azure login" first, or the commands will not work.');
       var functionQuestion = [{
         name: 'function',
         type: 'list',
         message: 'Which function do you want to choose?',
         choices: [{ name: 'Create VM', value: 'create' },
-          { name: 'Get VM Details', value: 'list' },
+          { name: 'Get VM List & State', value: 'list' },
           { name: 'Create & Start NGINX Server', value: 'create_ngnix' }
         ]
       }];
