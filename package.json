@@ -2,6 +2,7 @@
   "name": "devops-prov-server",
   "version": "0.0.1",
   "main": "prov",
+  "repository": "https://github.com/debalin/devops-provision-exercise",
   "dependencies": {
     "aws-sdk": "latest",
     "child_process": "latest",

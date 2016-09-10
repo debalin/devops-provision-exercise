@@ -253,6 +253,7 @@ inquirer.prompt(providerQuestion).then(function(answers) {
                   fs.writeFileSync('inventory', inventory);
                   var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
                   var promise = playbook.exec();
+                  console.log('Running playbook...');
                   promise.then(function(success) {
                     console.log(success.output);
                     console.log("Check the web server at " + answers.running[2] + ".");
