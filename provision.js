@@ -113,7 +113,7 @@ inquirer.prompt(providerQuestion).then(function(answers) {
       break;
 
     case 'Azure':
-      console.log('You have to run "azure login" first, or the commands will not work.');
+      console.log('Note: You have to interactively run "azure login" first, or the commands will not work.');
       var functionQuestion = [{
         name: 'function',
         type: 'list',
@@ -143,8 +143,12 @@ inquirer.prompt(providerQuestion).then(function(answers) {
               var resourceGroup = answers.resource_group;
               var username = answers.username;
               var password = answers.password;
-              var azure_key = username + "\n" + password;
-              fs.writeFileSync(constants.azureKeyPath, azure_key);
+              var previousKeys = "";
+              if (fs.existsSync(constants.azureKeyPath)) {
+                previousKeys = fs.readFileSync(constants.azureKeyPath).toString();
+              }
+              previousKeys += constants.azureVMName + "," + username + "," + password + "\n";
+              fs.writeFileSync(constants.azureKeyPath, previousKeys);
               console.log("Username and password stored in " + constants.azureKeyPath + ".");
               console.log("Following parameters will be used for the creation of the VM...");
               console.log("Resource Group: " + resourceGroup);
@@ -176,10 +180,17 @@ inquirer.prompt(providerQuestion).then(function(answers) {
 
           case 'create_ngnix':
             child_process.exec('azure vm list-ip-address --json', function(error, result, stderr) {
+              var contents = fs.readFileSync(constants.azureKeyPath).toString();
+              var possibleInstances = [];
+              contents = contents.split("\n");
+              for (var key of contents) {
+                key = key.split(",");
+                possibleInstances.push(key[0]);
+              }
               var list = parseJson(result);
               var runningInstances = [];
               for (var vm of list) {
-                if (vm.powerState == "VM running") {
+                if (vm.powerState == "VM running" && possibleInstances.indexOf(vm.name) != -1) {
                   runningInstances.push({
                     name: vm.name,
                     value: [vm.name, vm.resourceGroupName, vm.networkProfile.networkInterfaces[0].expanded.ipConfigurations[0].publicIPAddress.expanded.ipAddress]
@@ -189,22 +200,33 @@ inquirer.prompt(providerQuestion).then(function(answers) {
               var runningQuestion = [{
                 name: 'running',
                 type: 'list',
-                message: 'Which running instance do you want to choose?',
+                message: 'Which running instance (created through this program) do you want to choose?',
                 choices: runningInstances
               }];
               inquirer.prompt(runningQuestion).then(function(answers) {
-              	var contents = fs.readFileSync(constants.azureKeyPath).toString();
-              	contents = contents.split("\n");
-                // var inventory = "node0 ansible_ssh_host=" + answers.running[2] + " ansible_ssh_user=" + contents[0] + " ansible_ssh_private_key_file=" + utils.getUserHome() + path.sep + ".aws" + path.sep + "key_pls.pem";
-                // fs.writeFileSync('inventory', inventory);
-                // var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
-                // var promise = playbook.exec();
-                // promise.then(function(success) {
-                //   console.log(success.output);
-                //   console.log("Check the web server at " + answers.running + ".");
-                // }, function(error) {
-                //   console.error(error);
-                // });
+                var contents = fs.readFileSync(constants.azureKeyPath).toString();
+                contents = contents.split("\n");
+                var username, password;
+                for (var key of contents) {
+                  key = key.split(",");
+                  if (key[0] != answers.running[0])
+                    continue;
+                  username = key[1];
+                  password = key[2];
+                  break;
+                }
+                child_process.exec('export ANSIBLE_HOST_KEY_CHECKING=False', function(error, result, stderr) {
+                  var inventory = "node0 ansible_ssh_host=" + answers.running[2] + " ansible_ssh_user=" + username + " ansible_ssh_pass=" + password;
+                  fs.writeFileSync('inventory', inventory);
+                  var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
+                  var promise = playbook.exec();
+                  promise.then(function(success) {
+                    console.log(success.output);
+                    console.log("Check the web server at " + answers.running[2] + ".");
+                  }, function(error) {
+                    console.error(error);
+                  });
+                });
               });
             });
             break;
