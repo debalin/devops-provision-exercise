@@ -53,7 +53,7 @@ A full demo of the AWS functions can be found here: .
 
 ### Azure
 
-I have used the `azure-xplat-cli` to manage the Azure resources. This is done through the `arm` (Azure Resource Management) module in the `azure-xplat-cli`. I have not used the specific Node.js SDK because it involves creating a ServicePrincipal which is pretty cumbersome (you need to have an app, etc.), so I just ignored that. The `azure-xplat-cli` is instead a very nifty tool by Microsoft for managing and creating resources for automation. It is cross-platform as implied by the name. I have used the `child_process` module to call azure cli in Node.js. Though its a little hacky, but works perfectly. 
+I have used the `azure-xplat-cli` to manage the Azure resources. This is done through the `arm` (Azure Resource Management) module in the `azure-xplat-cli`. I have not used the specific Node.js SDK because it involves creating a ServicePrincipal which is pretty cumbersome (you need to have an app, etc.), so I just ignored that. The `azure-xplat-cli` is instead a very nifty tool by Microsoft for managing and creating resources for automation. It is cross-platform as implied by the name. I have used the `child_process` module to call azure CLI through Node.js. Though its a little hacky, but it works perfectly. 
 
 ### Pre-requisites
 
