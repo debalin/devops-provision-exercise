@@ -6,7 +6,7 @@ The homework specification can be found at https://github.com/CSC-DevOps/Course/
 
 ### Brief
 
-I have to provision virtual machines from two different providers automatically, create an NGINX server on them through Ansible and start that sever. I have chosen AWS and Azure to do this assignment and Node.js to do all the automation. The testing has been completely done on bash for windows. :-) 
+I have to provision virtual machines from two different providers automatically, create an NGINX server on them through Ansible and start that server. I have chosen AWS and Azure to do this assignment and Node.js to do all the automation. The testing has been completely done on bash for windows and the experience has been pretty good. :-) 
 
 ### Technologies used
 
