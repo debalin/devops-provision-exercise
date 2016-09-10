@@ -143,10 +143,9 @@ inquirer.prompt(providerQuestion).then(function(answers) {
               var resourceGroup = answers.resource_group;
               var username = answers.username;
               var password = answers.password;
-              var filePath = utils.getUserHome() + path.sep + "azure_key";
               var azure_key = username + "\n" + password;
-              fs.writeFileSync(filePath, azure_key);
-              console.log("Username and password stored in " + filePath + ".");
+              fs.writeFileSync(constants.azureKeyPath, azure_key);
+              console.log("Username and password stored in " + constants.azureKeyPath + ".");
               console.log("Following parameters will be used for the creation of the VM...");
               console.log("Resource Group: " + resourceGroup);
               console.log("VM Name: " + constants.azureVMName);
@@ -154,21 +153,60 @@ inquirer.prompt(providerQuestion).then(function(answers) {
               console.log("OS Type: " + constants.azureOSType);
               console.log("Image URN: " + constants.azureImageURN);
               var createCommand = "azure vm quick-create " + resourceGroup + " " + constants.azureVMName + " " + constants.azureLocation + " " + constants.azureOSType + " " + constants.azureImageURN + " " + username + " " + password;
-            	console.log('Creating VM...');
+              console.log('Creating VM...');
               child_process.exec(createCommand, function(error, result, stderr) {
-                console.log(result);
+                if (error)
+                  console.log('Error in creating VM.');
+                else if (result) {
+                  console.log('VM Created.');
+                }
               });
             });
             break;
 
           case 'list':
-            child_process.exec('azure vm list', function(error, result, stderr) {
-              console.log(result);
+            child_process.exec('azure vm list --json', function(error, result, stderr) {
+              var list = parseJson(result);
+              console.log('VMs in your account...');
+              for (var vm of list) {
+                console.log('Name: ' + vm.name + " | " + vm.powerState);
+              }
             });
             break;
 
           case 'create_ngnix':
-
+            child_process.exec('azure vm list-ip-address --json', function(error, result, stderr) {
+              var list = parseJson(result);
+              var runningInstances = [];
+              for (var vm of list) {
+                if (vm.powerState == "VM running") {
+                  runningInstances.push({
+                    name: vm.name,
+                    value: [vm.name, vm.resourceGroupName, vm.networkProfile.networkInterfaces[0].expanded.ipConfigurations[0].publicIPAddress.expanded.ipAddress]
+                  });
+                }
+              }
+              var runningQuestion = [{
+                name: 'running',
+                type: 'list',
+                message: 'Which running instance do you want to choose?',
+                choices: runningInstances
+              }];
+              inquirer.prompt(runningQuestion).then(function(answers) {
+              	var contents = fs.readFileSync(constants.azureKeyPath).toString();
+              	contents = contents.split("\n");
+                // var inventory = "node0 ansible_ssh_host=" + answers.running[2] + " ansible_ssh_user=" + contents[0] + " ansible_ssh_private_key_file=" + utils.getUserHome() + path.sep + ".aws" + path.sep + "key_pls.pem";
+                // fs.writeFileSync('inventory', inventory);
+                // var playbook = new Ansible.Playbook().playbook('nginx').inventory('inventory');
+                // var promise = playbook.exec();
+                // promise.then(function(success) {
+                //   console.log(success.output);
+                //   console.log("Check the web server at " + answers.running + ".");
+                // }, function(error) {
+                //   console.error(error);
+                // });
+              });
+            });
             break;
         }
       });
