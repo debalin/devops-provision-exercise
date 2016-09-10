@@ -57,7 +57,7 @@ I have used the `azure-xplat-cli` to manage the Azure resources. This is done th
 
 #### Screencast 
 
-A full demo for the Azure functions can be found at .
+A full demo for the Azure functions can be found at https://youtu.be/9b5ZPxtbprU.
 
 #### Pre-requisites
 
