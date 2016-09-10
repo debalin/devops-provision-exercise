@@ -32,6 +32,10 @@ My program is CLI-interactive because it depends on the user as to what key file
 
 I have used the AWS SDK for Node.js and mainly used the `runInstances` and `describeInstances` calls. The instances created are always based off Ubuntu images and have an instance type of "t2.micro". A key pair (the name of which you have to provide) will be used to login later into the server that you just created.
 
+#### Screencast 
+
+A full demo of the AWS functions can be found here: https://youtu.be/b_Duh8ARV3A.
+
 #### Pre-requisites
 
 1. Create an AWS account.
@@ -47,32 +51,28 @@ I have used the AWS SDK for Node.js and mainly used the `runInstances` and `desc
 4. List instances will list all the instances in your account and mention their states.
 5. Create & start NGINX server will ask you for a running instance to choose from and the key file for that instance. Then it will connect via Ansible to that instance and set up and start the server. 
 
-#### Screencast 
-
-A full demo of the AWS functions can be found here: .
-
 ### Azure
 
 I have used the `azure-xplat-cli` to manage the Azure resources. This is done through the `arm` (Azure Resource Management) module in the `azure-xplat-cli`. I have not used the specific Node.js SDK because it involves creating a ServicePrincipal which is pretty cumbersome (you need to have an app, etc.), so I just ignored that. The `azure-xplat-cli` is instead a very nifty tool by Microsoft for managing and creating resources for automation. It is cross-platform as implied by the name. I have used the `child_process` module to call azure CLI through Node.js. Though its a little hacky, but it works perfectly. 
 
-### Pre-requisites
+#### Screencast 
+
+A full demo for the Azure functions can be found at .
+
+#### Pre-requisites
 
 1. Do `npm install -g azure-xplat-cli` to have this module installed on your machine. This could have been installed as a local module (keeping it in the package.json file) and thus one `npm install` would have installed this as well. But there are sometimes path problems for that and instead its better to install it globally (`npm install` for package.json only installs stuff in the `node_modules` directory). 
 2. Create an Azure account. 
 3. Run `azure login`. It will guide you through logging in your azure account with respect to the CLI. This is IMPORTANT.
 4. Create a Resource Group in Azure and have it ready.
 
-### Steps
+#### Steps
 
 1. Run program (`node provision.js`) and choose Azure as the provider. 
 2. Choose any of the three functions (create vm, list vms, create & start NGINX server).
 3. In create vm, provide the Resource Group that you had created, a username for the new VM and a password. With AWS, I tested ssh key pairs for logging in and here I have tested username/password combinations. 
 4. In list vms, it will show you the name of the VMs and their power states. 
 5. In create & start NGINX server, it will show you the list of running instances THAT you created with this program (because it stores the usrename/password combination in your home directory, so it only allows creating NGINX servers in those VMs). After you choose one VM, Ansible will login to that VM using the username/passwrod combination stored previously in a azure_key file in your home directory, create the NGINX server and start it up. 
-
-### Screencast 
-
-A full demo for the Azure functions can be found at .
 
 ### Configuration Management
 
