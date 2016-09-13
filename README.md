@@ -13,16 +13,16 @@ I have to provision virtual machines from two different providers automatically,
 1. AWS EC2
 2. Azure VM
 3. Node.js
-4. AWS SDK for Node.js
-5. Azure Xplat-CLI 
+4. Azure Xplat-CLI 
+5. aws-sdk (Node module)
 6. inquirer (Node module)
 7. figlet (Node module)
 8. chalk (Node module)
 9. parse-json (Node module)
 10. child_process (Node module)
-11. Ansible
+11. Ansible (Pip module)
 
-My program is CLI-interactive because it depends on the user as to what key file / password / other data he / she will be using (basically instead of harcoding my data, I have generalized this). In a practical scenario, this wouldn't be required as in an organization, the secret keys won't change all the time and it can be hardcoded in the application. In this case, however, with the intent that the TA can run the program, I assumed that a little bit of interactive-ness will help the grader. I will go through a brief of both the providers that I have chosen (AWS, Azure) one by one. 
+My program is a little CLI-interactive because it depends on the user as to what key file / password / other data he / she will be using (basically instead of harcoding my data, I have generalized this). In a practical scenario, this wouldn't be required as in an organization, the secret keys won't change all the time and it can be hardcoded in the application. In this case, however, with the intent that the TA can run the program, I assumed that a little bit of interactive-ness will help the grader. I will go through a brief of both the providers that I have chosen (AWS, Azure) one by one. 
 
 ### Steps common to both providers
 
@@ -51,15 +51,15 @@ A full demo of the AWS functions can be found here: https://youtu.be/b_Duh8ARV3A
 #### Pre-requisites
 
 1. Create an AWS account.
-2. Get secret key and access ID from your Amazon AWS account and store them in ~/.aws/credentials file.
-2. Create a Security Group in your account and have the name ready with you. 
-3. Create a Key Pair in your account, download the private key (.pem file) and store it in ~/.aws/ folder.
+2. Get the Secret Key and Access ID from your Amazon AWS account and store them in ~/.aws/credentials file. Ensure correct permissions are there on this file.
+2. Create a Security Group with all inbound and outbound traffic allowed in your account and have the name ready with you. You might not do this, but sometimes the default security group that gets created with an instance has some traffic restrictions, which stops Ansible from logging in via SSH to those machines. An improvement of this (for my program) would be to create a security group with proper permissions on the fly as well, but I haven't done that as a part of this assignment. Moreover, for a production environment, it would be much easier to just create the security group through the UI, assign proper permissions to that and use it for all subsequent instance creations.
+3. Create a Key Pair in your account, download the private key (.pem file) and store it in ~/.aws/ folder. Ensure correct permissions are there on this file.
 
 #### Steps
 
 1. Run program (`node provision.js`) and choose AWS as the provider.
 2. Choose any of the three functions (create server, list instances, create & start NGINX server).
-3. Create server will ask you for the security group and the name of the key pair in your account to associate with the new instance. You need to have both of them created in your account and the key pair.pem file in your ~/.aws/ folder. You can leave the security group field blank, then the AWS SDK will automatically create a new security group for you. 
+3. Create server will ask you for the security group and the name of the key pair in your account to associate with the new instance. You need to have both of them created in your account and the key pair.pem file in your ~/.aws/ folder. You can leave the security group field blank, then the AWS SDK will automatically create a new security group for you (refer to complications regarding that in the Pre-requisites section). 
 4. List instances will list all the instances in your account and mention their states.
 5. Create & start NGINX server will ask you for a running instance to choose from and the key file for that instance. Then it will connect via Ansible to that instance and set up and start the server. 
 
