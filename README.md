@@ -88,4 +88,4 @@ A full demo for the Azure functions can be found at https://youtu.be/9b5ZPxtbprU
 
 ### Configuration Management
 
-The CM part of this project has been taken care in the package.json file for Node.js. Thus just doing a `npm install` will take care of all setup regrading running the program. The rest of the pre-requisites are mostly account related and have to be set up manually. 
+The CM part of this project has been taken care in the package.json file for Node.js (npm) and requirements.txt file for Python (pip). Thus just doing a `npm install` and `pip install -r requirements.txt` will take care of all setup regrading running the program. These are documented in the Steps common to both providers section. The rest of the pre-requisites are mostly account related and have to be set up manually. 
