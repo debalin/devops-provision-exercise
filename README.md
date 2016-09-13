@@ -44,6 +44,10 @@ My program is a little CLI-interactive because it depends on the user as to what
 
 I have used the AWS SDK for Node.js and mainly used the `runInstances` and `describeInstances` calls. The instances created are always based off Ubuntu images and have an instance type of "t2.micro". A key pair (the name of which you have to provide) will be used to login later into the server that you just created.
 
+#### Description about the EC2 service in Amazon
+
+For many data intensive tasks nowadays, we need a lot of computing power, which may not be available to us all the time. Amazon provides a solution for that with EC2 (Elastic Computing Cloud). This is a scalable computing service in the Amazon cloud. Basically, you provision hardware as and when required by you, without worrying about the setting up costs and/or efforts that are required. You can also provision the operating systems of your choosing in those machines that you have provisioned for yourself. Thus, you can build up your own dev/production environment remotely, without ever physically having seen that machine. There are also various ways of configuring the region of the instance, network, security policies, provisioning, etc through various SDKs and a REST API, thus making it really easy to do DevOps related work with your virtual server instances. 
+
 #### Screencast 
 
 A full demo of the AWS functions can be found here: https://youtu.be/b_Duh8ARV3A.
