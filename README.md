@@ -26,7 +26,19 @@ My program is CLI-interactive because it depends on the user as to what key file
 
 ### Steps common to both providers
 
-1. Do `npm install` in the root directory after cloning my project. 
+1. Install Node.js:
+  1. For Ubuntu/Debian based distros:<br> `curl -sL https://deb.nodesource.com/setup_6.x | sudo -E bash -` <br>
+`sudo apt-get install -y nodejs`
+  2. For Windows: <br> `choco install nodejs` (you would need [chocolatey](https://chocolatey.org/install))
+2. Install Python:
+  1. For Ubuntu/Debian based distros:<br> `sudo apt-get install python2.7`
+  2. For Windows: <br> `choco install python`
+3. Install Pip:
+  1. For Ubuntu/Debian based distros:<br> `sudo apt-get install python-pip`
+  2. For Windows: <br> `choco install pip`
+3. Clone my project: `git clone https://github.ncsu.edu/ddas4/CSC-DevOps_HW1.git`
+4. Install dependencies for Python: `pip install -r requirements.txt` (inside my directory)
+5. Install dependencies for Node: `npm install` (inside my directory)
 
 ### AWS
 
